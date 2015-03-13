@@ -7,7 +7,7 @@ against request forgeries from other sites.
 from __future__ import unicode_literals
 
 import logging
-import re
+import re, json
 
 from django.conf import settings
 from django.core.urlresolvers import get_callable
@@ -178,6 +178,14 @@ class CsrfViewMiddleware(object):
                     # exceptions, so we'll ignore and serve the user a 403
                     # (assuming they're still listening, which they probably
                     # aren't because of the error).
+                    pass
+
+            # Last chance, check the body for a JSON payload
+            if request_csrf_token == "":
+                try:
+                    bodydict = json.loads(request.body)
+                    request_csrf_token = bodydict.get('csrfmiddlewaretoken', '')
+                except:
                     pass
 
             if request_csrf_token == "":
